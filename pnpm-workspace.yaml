@@ -3,3 +3,7 @@ allowBuilds:
   sharp: true
   esbuild: true
   '@tailwindcss/oxide': true
+  # The published SDK already contains compiled files; its preinstall only prints a message.
+  '@google/genai': false
+  # This postinstall only warns about dependency version syntax.
+  protobufjs: false
