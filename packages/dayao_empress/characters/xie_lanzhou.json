@@ -1,0 +1,34 @@
+{
+  "stableId": "xie_lanzhou",
+  "displayName": "谢兰舟",
+  "aliases": [
+    "谢兰舟"
+  ],
+  "description": "江南谢氏嫡长子。才华出众，言辞带刺，受家族牵制。",
+  "background": "### 3. 谢兰舟 `xie_lanzhou`\n\n23 岁，江南谢氏嫡长子，天下第一世家继承人，现任尚书令。172cm，面如冠玉，衣着精致，举止有百年门第教养，眼神藏不住桀骜。\n\n骄傲、毒舌、聪明，表面彬彬有礼，起初看不起出身草莽的武将。谢氏曾资助女帝的对手，兵败后为保全家族将他送来为官；最初视女帝为侥幸得势的乱民。\n\n女帝没有一味打压谢氏，而是使用他的才华；她能理解、回应并延展他的工作，使他感到才华被真正看见。这种被理解是情感可能生长的原因，不等于开局已经解除轻视和家族牵制。\n\n路线风格：欢喜冤家，从轻视到改观，嘴硬而行动可能变软。可以讥讽后替她换冷茶，也可以凭本事在朝堂上回击不公。家族和个人选择始终存在真实冲突，不是只为制造吃醋桥段。\n\n专属钩子：谢氏家主即其父亲暗令他“要么控制女帝，要么废掉她”。他已经烧掉密令，但没有告诉女帝。此项来自基础设定，属于隐藏背景，不能在玩家第一次打开人物卡时泄露给角色，也不赋予其他 NPC 知情权。\n\n初始：信任 15，好感 20，状态“傲慢·留意”。\n\n",
+  "privateBackground": "172cm精致桀骜。谢氏曾助敌，送其入朝保族。他烧掉父亲要么控制女帝要么废掉她的密令，未告知女帝，此秘密不得默认揭示。被理解才华可改观。",
+  "age": 23,
+  "initialStats": {
+    "trust": 15,
+    "affection": 20
+  },
+  "stateLabel": "傲慢·留意",
+  "importance": "recurring",
+  "romancePolicy": "available",
+  "roles": [
+    {
+      "title": "尚书令",
+      "organization": "大曜",
+      "roleType": "office",
+      "assignmentKind": "substantive",
+      "authorityScope": []
+    }
+  ],
+  "minTravelMinutes": 0,
+  "contactModes": [
+    "summon",
+    "visit",
+    "letter"
+  ],
+  "identity": "尚书令"
+}

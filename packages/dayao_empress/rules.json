@@ -1,0 +1,323 @@
+{
+  "relationshipStats": [
+    {
+      "key": "trust",
+      "displayName": "信任",
+      "min": 0,
+      "max": 100,
+      "initial": 0,
+      "step": 2,
+      "sceneLimit": 5,
+      "dynamicDefault": null
+    },
+    {
+      "key": "affection",
+      "displayName": "好感",
+      "min": 0,
+      "max": 100,
+      "initial": 0,
+      "step": 2,
+      "sceneLimit": 5,
+      "dynamicDefault": null
+    }
+  ],
+  "worldStats": [
+    {
+      "key": "prestige",
+      "displayName": "威望",
+      "min": 0,
+      "max": 100,
+      "initial": 80,
+      "step": 2,
+      "sceneLimit": 5,
+      "dynamicDefault": null
+    },
+    {
+      "key": "publicSupport",
+      "displayName": "民心",
+      "min": 0,
+      "max": 100,
+      "initial": 60,
+      "step": 2,
+      "sceneLimit": 5,
+      "dynamicDefault": null
+    },
+    {
+      "key": "militaryControl",
+      "displayName": "军权",
+      "min": 0,
+      "max": 100,
+      "initial": 85,
+      "step": 2,
+      "sceneLimit": 5,
+      "dynamicDefault": null
+    },
+    {
+      "key": "stability",
+      "displayName": "朝局稳定",
+      "min": 0,
+      "max": 100,
+      "initial": 35,
+      "step": 2,
+      "sceneLimit": 5,
+      "dynamicDefault": null
+    },
+    {
+      "key": "fiscalHealth",
+      "displayName": "财政状况",
+      "min": 0,
+      "max": 100,
+      "initial": 30,
+      "step": 2,
+      "sceneLimit": 5,
+      "dynamicDefault": null
+    }
+  ],
+  "triggers": [
+    {
+      "id": "boundary",
+      "eventType": "boundary",
+      "scope": "each",
+      "trigger": {
+        "source": "character_stat",
+        "key": "affection",
+        "operator": ">",
+        "value": 70
+      },
+      "reason": "好感严格大于70；表达亲近仍需玩家回应。",
+      "priority": 30,
+      "seedOnly": true,
+      "romanceRequired": true
+    },
+    {
+      "id": "vulnerability",
+      "eventType": "vulnerability",
+      "scope": "each",
+      "trigger": {
+        "all": [
+          {
+            "source": "character_stat",
+            "key": "trust",
+            "operator": ">",
+            "value": 80
+          },
+          {
+            "source": "character_stat",
+            "key": "affection",
+            "operator": ">",
+            "value": 60
+          }
+        ]
+      },
+      "reason": "信任大于80且好感大于60；等待安全私下机会。",
+      "priority": 25,
+      "seedOnly": true,
+      "romanceRequired": true,
+      "privateScene": true,
+      "forbiddenLocations": [
+        "朝堂",
+        "朝会",
+        "集市"
+      ]
+    },
+    {
+      "id": "contact",
+      "eventType": "contact",
+      "scope": "each",
+      "trigger": {
+        "source": "counter",
+        "key": "neglect",
+        "operator": ">=",
+        "value": 3
+      },
+      "reason": "三个有效接触场景未回应；至少四个场景冷却。",
+      "priority": 15,
+      "seedOnly": true,
+      "romanceRequired": false,
+      "cooldownScenes": 4
+    },
+    {
+      "id": "rumor",
+      "eventType": "rumor",
+      "scope": "each",
+      "trigger": {
+        "source": "counter",
+        "key": "exceptions",
+        "operator": ">=",
+        "value": 3
+      },
+      "reason": "三项不同破例；等待见证或传播依据。",
+      "priority": 20,
+      "seedOnly": true,
+      "romanceRequired": false,
+      "minWitnesses": 2,
+      "witnessWords": [
+        "传闻",
+        "听闻",
+        "转告",
+        "目睹",
+        "亲见",
+        "传开"
+      ]
+    },
+    {
+      "id": "conflict",
+      "eventType": "conflict",
+      "scope": "pair",
+      "trigger": {
+        "source": "character_stat",
+        "key": "affection",
+        "operator": ">",
+        "value": 60
+      },
+      "reason": "双方好感大于60；可以调停、拒绝或延后。",
+      "priority": 22,
+      "seedOnly": true,
+      "romanceRequired": true
+    }
+  ],
+  "evidenceCategories": [
+    {
+      "key": "respect",
+      "playerWords": [
+        "履行",
+        "兑现",
+        "交付",
+        "救下",
+        "保护",
+        "羞辱",
+        "撤回",
+        "破例",
+        "免去",
+        "采纳",
+        "支持"
+      ],
+      "narrativeWords": [
+        "兑现",
+        "履行",
+        "救下",
+        "保护",
+        "羞辱",
+        "受伤",
+        "破例",
+        "采纳",
+        "支持"
+      ]
+    },
+    {
+      "key": "fulfilled_promise",
+      "playerWords": [
+        "履行",
+        "兑现",
+        "交付",
+        "救下",
+        "保护",
+        "羞辱",
+        "撤回",
+        "破例",
+        "免去",
+        "采纳",
+        "支持"
+      ],
+      "narrativeWords": [
+        "兑现",
+        "履行",
+        "救下",
+        "保护",
+        "羞辱",
+        "受伤",
+        "破例",
+        "采纳",
+        "支持"
+      ]
+    },
+    {
+      "key": "support",
+      "playerWords": [
+        "履行",
+        "兑现",
+        "交付",
+        "救下",
+        "保护",
+        "羞辱",
+        "撤回",
+        "破例",
+        "免去",
+        "采纳",
+        "支持"
+      ],
+      "narrativeWords": [
+        "兑现",
+        "履行",
+        "救下",
+        "保护",
+        "羞辱",
+        "受伤",
+        "破例",
+        "采纳",
+        "支持"
+      ]
+    },
+    {
+      "key": "harm",
+      "playerWords": [
+        "履行",
+        "兑现",
+        "交付",
+        "救下",
+        "保护",
+        "羞辱",
+        "撤回",
+        "破例",
+        "免去",
+        "采纳",
+        "支持"
+      ],
+      "narrativeWords": [
+        "兑现",
+        "履行",
+        "救下",
+        "保护",
+        "羞辱",
+        "受伤",
+        "破例",
+        "采纳",
+        "支持"
+      ]
+    },
+    {
+      "key": "exception",
+      "playerWords": [
+        "履行",
+        "兑现",
+        "交付",
+        "救下",
+        "保护",
+        "羞辱",
+        "撤回",
+        "破例",
+        "免去",
+        "采纳",
+        "支持"
+      ],
+      "narrativeWords": [
+        "兑现",
+        "履行",
+        "救下",
+        "保护",
+        "羞辱",
+        "受伤",
+        "破例",
+        "采纳",
+        "支持"
+      ]
+    }
+  ],
+  "storyThreadTypes": [
+    "promise",
+    "political",
+    "relationship",
+    "mystery",
+    "custom"
+  ]
+}

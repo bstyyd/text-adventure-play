@@ -1,0 +1,54 @@
+{
+  "initialScene": {
+    "locationId": "imperial_study",
+    "weather": "春寒，夜静，尚未下雨",
+    "present": [],
+    "pendingThreads": [
+      "第三镇兵力与粮耗差值约17%，待复核；批注尚未送达。",
+      "门外来人身份未明。"
+    ],
+    "accessionOffsetDays": 2
+  },
+  "initialFacts": [
+    {
+      "kind": "unresolved",
+      "subject": "第三镇账目",
+      "content": "账面粮耗与兵力差值约17%，原因待查；复核批注尚未送达。",
+      "evidence": {
+        "blockId": "b5",
+        "quote": "疑有虚报"
+      },
+      "knownBy": [],
+      "revealed": true,
+      "importance": 5
+    }
+  ],
+  "ui": {
+    "worldStatsTitle": "朝局",
+    "playerAddress": "陛下",
+    "branchName": "正篇",
+    "pinnedCharacters": [
+      "shen_che",
+      "gu_qingya",
+      "xie_lanzhou",
+      "pei_tingxue",
+      "tuoba_ye",
+      "wen_hui"
+    ],
+    "welcomeText": "天下初定，故事未定。御书房的灯还亮着，门外传来脚步声。",
+    "theme": {
+      "accent": "#9b493b",
+      "backgroundPreset": "paper",
+      "fontPreset": "serif",
+      "coverImage": null
+    }
+  },
+  "locations": [
+    {
+      "id": "imperial_study",
+      "name": "御书房",
+      "parentId": null,
+      "description": ""
+    }
+  ]
+}

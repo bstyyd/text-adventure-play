@@ -1,0 +1,41 @@
+{
+  "id": "dayao-simple-v1",
+  "type": "fictional",
+  "era": "凌月",
+  "firstYearLabel": "元",
+  "months": [
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  "periods": [
+    "子时",
+    "丑时",
+    "寅时",
+    "卯时",
+    "辰时",
+    "巳时",
+    "午时",
+    "未时",
+    "申时",
+    "酉时",
+    "戌时",
+    "亥时"
+  ],
+  "start": {
+    "year": 1,
+    "month": 3,
+    "day": 28,
+    "minuteOfDay": 1380
+  },
+  "allowAdvance": true
+}

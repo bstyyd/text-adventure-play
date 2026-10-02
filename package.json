@@ -1,0 +1,55 @@
+{
+  "name": "dayao-novel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs dev",
+    "start": "node scripts/serve.mjs start",
+    "build": "next build --webpack && node scripts/audit-build.mjs && node scripts/pwa-build.mjs",
+    "build:pages": "node scripts/build-pages.mjs",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:access": "playwright test --config=playwright.access.config.ts",
+    "test:mobile": "playwright test --config=playwright.mobile.config.ts",
+    "test:pages": "playwright test --config=playwright.pages.config.ts",
+    "backup": "tsx scripts/data.ts backup",
+    "restore": "tsx scripts/data.ts restore",
+    "password": "tsx scripts/password.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "@noble/hashes": "2.4.0",
+    "better-sqlite3": "^12.0.0",
+    "buffer": "6.0.3",
+    "fflate": "0.8.3",
+    "lucide-react": "^0.468.0",
+    "next": "^16.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sql.js": "1.14.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/sql.js": "1.4.11",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.0.0",
+    "fake-indexeddb": "6.2.5",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@11.19.0"
+}

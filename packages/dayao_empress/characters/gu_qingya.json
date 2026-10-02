@@ -1,0 +1,34 @@
+{
+  "stableId": "gu_qingya",
+  "displayName": "顾青崖",
+  "aliases": [
+    "顾青崖"
+  ],
+  "description": "归降的谋士，温文而锋利。欣赏有远见的对手。",
+  "background": "### 2. 顾青崖 `gu_qingya`\n\n30 岁，原割据诸侯麾下第一谋士，兵败归降，现任御史大夫。178cm，清瘦儒雅，青衫，手指修长；笑容温润而眼底藏刀。\n\n表面温文尔雅、滴水不漏，内心极为骄傲。他曾辅佐的主公被玄天华所灭；归降时跪在阶下抬眼审视她，不是立即臣服。她没有羞辱他，反而给了他弹劾百官的权力，以“因为你看我的眼神不像看皇帝，像看一个对手”解释这种信任。\n\n他被棋逢对手而非主仆依附吸引，即使心动也不卑微。欣赏更聪明、更狠、更有长远眼光的决策，但有自己的原则和退路，不能每次都故意反对或每次都甘拜下风。\n\n路线风格：智性吸引、互相试探、互相欣赏；可以深夜送密报，或在朝堂上提出有价值的反对意见。最终心甘情愿认输是可能的发展，不是预设必达结局。\n\n专属钩子：暗中调查女帝来历，留意现代词汇、超前知识与某些似乎预知的表现。开局是发现异常、正在调查，不是确认穿越，更不是知道她现代世界的具体身份。\n\n初始：信任 25，好感 30，状态“观望·试探”。\n\n",
+  "privateBackground": "178cm青衫。旧主被玄天华所灭，获弹劾百官之权。骄傲有原则，不机械反对或认输。暗查来历、仅怀疑异常，不知道穿越身份。",
+  "age": 30,
+  "initialStats": {
+    "trust": 25,
+    "affection": 30
+  },
+  "stateLabel": "观望·试探",
+  "importance": "recurring",
+  "romancePolicy": "available",
+  "roles": [
+    {
+      "title": "御史大夫",
+      "organization": "大曜",
+      "roleType": "office",
+      "assignmentKind": "substantive",
+      "authorityScope": []
+    }
+  ],
+  "minTravelMinutes": 0,
+  "contactModes": [
+    "summon",
+    "visit",
+    "letter"
+  ],
+  "identity": "御史大夫"
+}

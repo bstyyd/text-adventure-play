@@ -1,0 +1,5 @@
+# Replace this example domain; Caddy manages a valid HTTPS certificate.
+story.example.com {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:3000
+}

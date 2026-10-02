@@ -1,0 +1,14 @@
+import {spawnSync} from 'node:child_process';
+import {writeFileSync} from 'node:fs';
+const owner='bstyyd',repo='text-adventure-play',base='/repos/'+owner+'/'+repo;
+const credential=spawnSync('git',['credential','fill'],{input:'protocol=https\nhost=github.com\nusername='+owner+'\n\n',encoding:'utf8',env:{...process.env,GCM_INTERACTIVE:'Never'},timeout:30000});
+const token=credential.status===0?credential.stdout.split(/\r?\n/).find(line=>line.startsWith('password='))?.slice(9):undefined;
+if(!token)throw new Error('GitHub 登录不可用，请用设备登录，不要粘贴令牌。');
+async function api(endpoint,method='GET',body){const response=await fetch('https://api.github.com'+endpoint,{method,headers:{Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'text-adventure-deploy',Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,redirect:'manual',signal:AbortSignal.timeout(30000)});return {response,data:response.status===204?{}:response.status===302?{}:await response.json()};}
+const user=await api('/user');if(user.data.login!==owner)throw new Error('GitHub 登录账号不匹配');
+if(process.argv.includes('--enable-pages')){const previous=await api(base+'/pages');if(previous.response.status===404){const created=await api(base+'/pages','POST',{build_type:'workflow'});console.log(JSON.stringify({operation:'enable-pages',status:created.response.status}));}}
+if(process.argv.includes('--dispatch')){const dispatched=await api(base+'/actions/workflows/deploy.yml/dispatches','POST',{ref:'main'});console.log(JSON.stringify({operation:'dispatch',status:dispatched.response.status}));}
+const id=process.argv.find(arg=>arg.startsWith('--logs='))?.slice(7);
+if(id){if(!/^\d+$/.test(id))throw new Error('无效 run ID');const logs=await api(base+'/actions/runs/'+id+'/logs');const url=logs.response.headers.get('location');if(!url||!url.startsWith('https://'))throw new Error('未获得安全的日志下载地址');const download=await fetch(url,{signal:AbortSignal.timeout(30000)});if(!download.ok)throw new Error('下载日志失败');writeFileSync('.test-data/github-action-'+id+'.zip',Buffer.from(await download.arrayBuffer()));console.log(JSON.stringify({logs:'.test-data/github-action-'+id+'.zip'}));}
+const metadata=await api(base),pages=await api(base+'/pages'),runs=await api(base+'/actions/runs?per_page=3');
+console.log(JSON.stringify({repository:{status:metadata.response.status,url:metadata.data.html_url,private:metadata.data.private,defaultBranch:metadata.data.default_branch},pages:{status:pages.response.status,url:pages.data.html_url,buildType:pages.data.build_type,https:pages.data.https_enforced},runs:(runs.data.workflow_runs||[]).map(run=>({id:run.id,status:run.status,conclusion:run.conclusion,commit:run.head_sha,url:run.html_url,createdAt:run.created_at}))},null,2));

@@ -1,0 +1,14 @@
+import {mkdirSync} from 'node:fs';
+import path from 'node:path';
+const env=process.env;
+if(env.APP_ACCESS_MODE!=='public'||env.APP_PLAYER_MODE!=='isolated')throw new Error('生产镜像须使用 public + isolated');
+if(!env.APP_DATA_DIR||!path.isAbsolute(env.APP_DATA_DIR)||['/tmp','/app','.next'].some(p=>env.APP_DATA_DIR===p||env.APP_DATA_DIR.startsWith(p+'/')))throw new Error('APP_DATA_DIR 须为独立持久磁盘');
+if(!env.APP_ORIGINS||env.APP_ORIGINS.split(',').some(o=>{try{const u=new URL(o.trim());return u.protocol!=='https:'||u.origin!==o.trim();}catch{return true;}}))throw new Error('须配置完整 HTTPS APP_ORIGINS');
+const provider=env.APP_SHARED_PROVIDER;
+if(!['siliconflow','deepseek','google-gemma'].includes(provider)||provider!=='google-gemma'&&!env.APP_SHARED_MODEL)throw new Error('须配置站点供应商及模型');
+const key=provider==='siliconflow'?env.SILICONFLOW_API_KEY:provider==='deepseek'?env.DEEPSEEK_API_KEY:env.GOOGLE_AI_API_KEY||env.GOOGLE_API_KEY;
+if(!key)throw new Error('站长 API Key 尚未配置');
+if(!env.APP_DEPLOY_TOKEN||env.APP_DEPLOY_TOKEN.length<32)throw new Error('APP_DEPLOY_TOKEN 须至少32字符，用于部署排空');
+mkdirSync(env.APP_DATA_DIR,{recursive:true,mode:0o700});
+env.HOSTNAME='0.0.0.0';env.PORT=env.APP_PORT||'3000';
+await import(path.resolve('server.js'));

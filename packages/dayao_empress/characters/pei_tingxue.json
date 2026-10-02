@@ -1,0 +1,34 @@
+{
+  "stableId": "pei_tingxue",
+  "displayName": "裴听雪",
+  "aliases": [
+    "裴听雪"
+  ],
+  "description": "首位破格提拔的女官。沉静敏锐，曾在朝堂为女帝辩护。",
+  "background": "### 4. 裴听雪 `pei_tingxue`\n\n21 岁，寒门才女，女帝破格提拔的第一位女官，现任起居郎。165cm，清秀素净，不施粉黛，穿窄袖官袍，腰间别笔，笑起来有两个梨涡。\n\n沉静、敏锐、内心倔强，对女帝既崇拜又好奇。她曾公开在朝堂上为女帝辩护，面对“牝鸡司晨”的辱骂，引经据典驳回对方，随后得到女帝注意与提拔。\n\n两人有不甘被时代束缚的共鸣。她爱的是值得追随的人，可能分不清崇拜和心动。获得真正机会、被公正支持与保护会触动她，而非每次都需要女帝救场。\n\n路线风格：隐秘、温柔的灵魂共鸣。她会记住女帝随口说的话，提前准备偏好的茶，但有自己的工作与判断，不只是贴身服务型角色。\n\n专属钩子：在起居注私人副本中，以只有自己明白的符号记录一份“不一样的陛下”。它是她的私人记录，不是自动公开给玩家的完整恋爱日记。\n\n初始：信任 55，好感 35，状态“知己·未觉”。\n\n",
+  "privateBackground": "165cm窄袖官袍、腰间笔、梨涡。寒门才女、倔强，崇拜与心动未分清。有独立工作判断。起居注私人副本以符号记录女帝，不公开、不自动共享。",
+  "age": 21,
+  "initialStats": {
+    "trust": 55,
+    "affection": 35
+  },
+  "stateLabel": "知己·未觉",
+  "importance": "recurring",
+  "romancePolicy": "available",
+  "roles": [
+    {
+      "title": "起居郎",
+      "organization": "大曜",
+      "roleType": "office",
+      "assignmentKind": "substantive",
+      "authorityScope": []
+    }
+  ],
+  "minTravelMinutes": 0,
+  "contactModes": [
+    "summon",
+    "visit",
+    "letter"
+  ],
+  "identity": "起居郎"
+}

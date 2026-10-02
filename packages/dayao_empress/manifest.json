@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "engineSchemaVersion": 1,
+  "packageId": "dayao_empress",
+  "version": "1.0.0",
+  "title": "大曜女帝",
+  "description": "自由交谈、长篇剧情、人物记忆与多条命运分支。",
+  "author": "原设定作者",
+  "language": "zh-CN",
+  "playerMode": "fixed",
+  "openingMode": "fixed",
+  "dynamicCharacters": true,
+  "relationshipSystem": {
+    "enabled": true
+  },
+  "timeSystem": true,
+  "romanceSystem": true,
+  "roleSystem": true,
+  "allowBranches": true,
+  "defaultNarrativeStyle": "正经剧情、公事推动关系、慢热、人物保持独立动机",
+  "defaultModelSuggestions": []
+}

@@ -1,0 +1,21 @@
+services:
+  game:
+    image: ${GAME_IMAGE:?Set an immutable release image}
+    container_name: fiction
+    restart: unless-stopped
+    env_file: /etc/fiction.env
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - /srv/fiction/data:/var/lib/fiction
+    init: true
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
