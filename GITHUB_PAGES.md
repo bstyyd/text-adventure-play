@@ -2,7 +2,7 @@
 
 用户于 2026-10-02 明确选择：仅用 GitHub，玩家自填 API Key，浏览器主存档与文件备份。Vercel / Neon 方案停止，没有创建对应云资源。电脑主库不上传。
 
-独立仓库：[bstyyd/text-adventure-play](https://github.com/bstyyd/text-adventure-play)。目标网页：[文字冒险](https://bstyyd.github.io/text-adventure-play/)。部署是否已完成和实测结果见 [发布记录](PUBLIC_DEPLOYMENT_RESULT.md)。咒术回战仓库和网页没有改动。
+独立仓库：[bstyyd/text-adventure-play](https://github.com/bstyyd/text-adventure-play)。已发布网页：[文字冒险](https://bstyyd.github.io/text-adventure-play/)。2026-10-03 已通过实际 HTTPS 地址的保存、刷新、密钥不落盘、离线和文件恢复检查；实测范围见 [发布记录](PUBLIC_DEPLOYMENT_RESULT.md)。咒术回战仓库和网页没有改动。
 
 ## 游玩与 API
 
@@ -41,6 +41,8 @@ node scripts/serve-pages.mjs
 
 模拟地址：`http://127.0.0.1:3230/text-adventure-play/`；产物为 `pages-site/out`。本机 Node / SQLite 版仍用 `pnpm build`、`pnpm start`。
 
+完整本地浏览器检查用 `pnpm test:pages`。仅检查已发布网页可在 PowerShell 设置 `$env:PAGES_TEST_URL='https://bstyyd.github.io/text-adventure-play/'`，再运行 `pnpm exec playwright test --config=playwright.pages.config.ts --grep '390px|player key|downloaded resources|file import'`；这些案例不调用真实模型。
+
 GitHub Settings → Pages 使用 GitHub Actions。main 推送触发 `.github/workflows/deploy.yml`，检查 lint、tests、静态生产构建和 typecheck，再发布 `pages-site/out`。仓库只上传白名单代码、测试和文档，原存档、密钥、环境文件、日志、截图与测试数据不进入仓库或网页。
 
 更新：修改代码、提交并推送 main，在 Actions 确认 build 和 deploy 都成功，再检查网页。回滚：`git revert <有问题的提交号>` 并推送 main，等同一流程重新发布；不覆盖或回退浏览器数据库。未来不兼容 Schema 升级须先导出 JSON。改变仓库名时同步修改 Pages 配置、构建和预览脚本的子路径。
@@ -49,6 +51,6 @@ GitHub Settings → Pages 使用 GitHub Actions。main 推送触发 `.github/wor
 
 GitHub Free 支持公开仓库的 Pages；不购买域名或付费套餐。官方限制包括站点大小 1GB、每月软带宽上限 100GB。免费托管不包含模型额度；AI 费用来自各玩家的供应商账户，输出上限和超时由模型配置控制，没有站长共享 Key。
 
-中国境内可达性须测试真实网址，GitHub Pages 和海外模型不保证所有网络稳定；请求失败保留输入与已收草稿，不自动重发。首次真实模型对话须填 Key 后实际检查，不能把 Mock 写成通过。
+当前电脑网络已在真实网址通过 HTTP 和浏览器检查，其他中国境内网络仍需实际测试，GitHub Pages 和海外模型不保证所有网络稳定；请求失败保留输入与已收草稿，不自动重发。用户选择自行测试真实模型，交付不把 Mock 写成真实 API 通过。
 
 依据：[Pages 工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)、[Pages 限额](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)、[原生 Gemma](https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api)。

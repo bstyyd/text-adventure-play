@@ -10,6 +10,8 @@ Pages 的主存档明确位于浏览器，不提供账户或自动跨设备同�
 
 静态资源、Manifest 与 PWA 缓存限定 /text-adventure-play/；main 代码推送由 GitHub Actions 检查并发布。网站版本更新不清理 IndexedDB。公开部署、真实 AI、真机／境内网络测试分别报告。下面服务器／Sites 章节保留原先评估；不作为此次 Pages 的存储或访问承诺。
 
+2026-10-03 已通过 GitHub Actions 实际发布 https://bstyyd.github.io/text-adventure-play/ ，并在该地址验证保存／刷新、密钥不落盘、离线启动与文件恢复。真实 AI 由用户自行测试，不能将 Mock 结果视为真实供应商联调；详细运行证据见 PUBLIC_DEPLOYMENT_RESULT.md。
+
 
 ## 可分享网页的部署增量（2026-10-02）
 

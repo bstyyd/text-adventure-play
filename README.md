@@ -1,6 +1,6 @@
 # 通用互动小说引擎 · 内置「大曜女帝」
 
-当前公开分享目标采用 [GitHub Pages 浏览器版](GITHUB_PAGES.md)：玩家自填 API Key，主存档保存于当前浏览器，完整 JSON 可备份恢复。独立仓库为 [bstyyd/text-adventure-play](https://github.com/bstyyd/text-adventure-play)，发布和真实验证状态见 [PUBLIC_DEPLOYMENT_RESULT.md](PUBLIC_DEPLOYMENT_RESULT.md)。本机版仍保留，原存档不迁移或上传。
+已实际发布 [打开文字冒险游戏](https://bstyyd.github.io/text-adventure-play/)，采用 [GitHub Pages 浏览器版](GITHUB_PAGES.md)：玩家自填 API Key，主存档保存于当前浏览器，完整 JSON 可备份恢复。独立仓库为 [bstyyd/text-adventure-play](https://github.com/bstyyd/text-adventure-play)，Actions 自动发布和真实验证范围见 [PUBLIC_DEPLOYMENT_RESULT.md](PUBLIC_DEPLOYMENT_RESULT.md)。本机版仍保留，原存档不迁移或上传。
 
 现在可以在“剧本库”创建世界、导入 TXT／Markdown 或标准 ZIP、预览并安装，再从剧本创建独立存档。玩家、NPC、开局、历法、人物及世界数值、声明式规则、Lore 和页面标签由该局剧本快照提供。内置 `dayao_empress` 保留玄天华、六位原角色、原数值和御书房序章；现代侦探仅是测试夹具，不会预装。
 
@@ -12,7 +12,7 @@
 
 设计文件在 dayao-codex-design/，DESIGN.md 与 ACCEPTANCE.md 随动态人物及移动端／PWA增量同步更新，原设定和序章保留。实施说明在 IMPLEMENTATION_PLAN.md，逐项验证记录在 VERIFICATION.md。
 
-## 安装与启动
+## 本机 Node 版安装与启动
 
 需要 Node.js 22 或24、pnpm 11。Windows 已在 Node 24.19.0 / pnpm 11.19.0 实际验证。依赖版本锁定在 pnpm-lock.yaml。
 
@@ -71,6 +71,8 @@
 - 人物与朝局详情、卷册栏可折叠；“字”调整字号、行距、栏宽；右上切换明暗。浏览旧文时不强制跳到底部。
 
 ## 供应商与密钥
+
+Pages 网页版在“设置”填写自己的 Key，仅保留在当前页面内存，刷新后重新填写；没有服务器环境变量或 GitHub Secrets。下面的服务端密钥和环境文件说明适用于保留的本机 Node 版。
 
 在设置中编辑供应商配置，填写模型和密钥，先保存，再选择正文配置与可选记忆整理配置。默认正文、整理用同一模型。切换模型沿用本地历史，在途请求使用开始时的配置快照。
 

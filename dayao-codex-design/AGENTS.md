@@ -6,6 +6,10 @@
 
 实际开发目录是 `D:\文字游戏`；主存档保留在 `C:\Users\13710\DayaoNovel`。修改剧本模板不能自动改变已有存档快照。不要预装测试专用现代侦探剧本。扩展格式时同步 Schema、校验、公开投影、快照、迁移、导入导出与测试。
 
+## 当前公开版本（用户于 2026-10-02 明确变更）
+
+仅使用 GitHub Pages：`bstyyd/text-adventure-play`，网页 https://bstyyd.github.io/text-adventure-play/ 。用户同意玩家自填 Key、浏览器 IndexedDB 主存档与完整 JSON 文件备份；Pages 版 Key 只在当前页面内存，浏览器直接调用官方 API。没有站长共享 Key、服务器主档或自动跨设备同步。下面第 9 项的服务端使用前提仅适用于保留的本机 Node 版；不把玩家 Key 写入前端构建、持久存储或导出。用户选择自行进行真实 AI 测试。沿用世界、规则、分支与原子提交要求，电脑原主库不上传、不清空、不迁移。
+
 这是软件开发仓库。你现在负责实现应用，不是在本对话中扮演 NPC 或继续游戏。
 
 先阅读 `DESIGN.md`、`GAME_SETTING.md`、`API_PROVIDERS.md`、`ACCEPTANCE.md`、`SOURCES.md`；检查现有目录后制定实施计划。产品优先级是小说感、玩家决策权、本地记忆、历史回看与稳定存档。

@@ -36,7 +36,7 @@ test('downloaded resources open saved story offline with no model replay',async(
 test('file import creates another save and other browsers cannot see the book',async({page,browser})=>{
   await start(page,'备份与隔离');await page.getByRole('button',{name:'存档',exact:true}).click();const exported=page.waitForEvent('download');await page.getByRole('button',{name:'可恢复 JSON',exact:true}).click();const download=await exported,content=await readFile((await download.path())!);
   await page.locator('input[type=file][accept=".json"]').setInputFiles({name:'手机备份.json',mimeType:'application/json',buffer:content});await expect(page.getByText('已创建导入存档，原档未改动。')).toBeVisible();await page.getByRole('button',{name:'存档',exact:true}).click();await expect(page.locator('.modal .save-list>div')).toHaveCount(2);
-  const other=await browser.newContext();try{const second=await other.newPage();await second.goto('http://127.0.0.1:3230/text-adventure-play/');await expect(second.getByRole('button',{name:'翻开新篇',exact:true})).toBeVisible();await second.getByRole('button',{name:'存档',exact:true}).click();await expect(second.locator('.modal .save-list>div')).toHaveCount(0);}finally{await other.close();}
+  const other=await browser.newContext();try{const second=await other.newPage();await second.goto(new URL('./',page.url()).href);await expect(second.getByRole('button',{name:'翻开新篇',exact:true})).toBeVisible();await second.getByRole('button',{name:'存档',exact:true}).click();await expect(second.locator('.modal .save-list>div')).toHaveCount(0);}finally{await other.close();}
 });
 test('quota failure keeps official history and permits exporting the old save',async({page})=>{
   await start(page,'空间不足旧档');await page.evaluate(()=>{

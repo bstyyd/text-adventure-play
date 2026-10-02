@@ -337,3 +337,5 @@ PA16本轮选择C（标准Next.js／Node + PostgreSQL）作为下一阶段方向
 | GP10 | 明确无自动跨设备同步；换设备通过完整 JSON。真机键盘／安装、移动网络与真实 API 尚需实际验证。 |
 
 浏览器测试与真实发布状态不得互相替代。验收失败修复和重跑记录保存在开发目录 .test-data，汇总见 PUBLIC_DEPLOYMENT_RESULT.md。
+
+2026-10-03 实测增量：GitHub Ubuntu 工作流成功执行 lint、277 项 tests、静态 production build、typecheck 和 Pages deploy；实际 HTTPS 的 HTML、Manifest、WASM 为 200。公开网址四项 Edge 浏览器检查通过（390px 自由输入／Mock 正式保存／刷新／导出／回看，Key 不落盘／刷新重填，离线启动，JSON 文件恢复／浏览器隔离）。本地五种视口共 9 项 Pages 检查通过。用户选择自行进行真实 AI 测试；三家真实模型、iOS／Android 真机与中国移动网络未验收。
