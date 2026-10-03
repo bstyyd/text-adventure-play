@@ -27,6 +27,7 @@ class BrowserRuntime{
   private cookie='';
   private csrf='';
   private pending=Promise.resolve();
+  private closing:Promise<void>|undefined;
   private writing=false;
   readonly repo:Repository;
   readonly security=new BrowserSecurity({mode:'lan',origins:[location.origin],passwordHash:'',isolated:true});
@@ -64,6 +65,7 @@ class BrowserRuntime{
     this.expired(row.leaseUntil);
   }
   private flush(){
+    if(this.closing)return this.closing;
     this.pending=this.pending.then(async()=>{
       if(!this.lease)return;
       const data=this.db.serialize(),digest=createHash('sha256').update(data).digest('hex') as string;
@@ -72,8 +74,20 @@ class BrowserRuntime{
     });
     return this.pending;
   }
+  private releaseLease(lease:string){
+    if(this.closing)return this.closing;
+    // Once release starts, readers and lifecycle snapshots must not queue another
+    // checkpoint against a lease that IndexedDB has already cleared.
+    this.closing=(async()=>{
+      await this.pending.catch(()=>{});
+      try{await this.store.release(lease);}
+      finally{this.lease=undefined;this.writing=false;this.closing=undefined;}
+    })();
+    return this.closing;
+  }
   private request(path:string,data?:unknown,signal?:AbortSignal){return new Request(location.origin+'/api/'+path,{method:data===undefined?'GET':'POST',headers:{...(this.cookie?{cookie:this.cookie}:{}),...(data===undefined?{}:{'Content-Type':'application/json',Origin:location.origin,'x-dayao-csrf':this.csrf})},body:data===undefined?undefined:JSON.stringify(data),signal});}
   async call(path:string,data?:unknown,signal?:AbortSignal){
+    if(this.closing)await this.closing;
     if(this.persistFailure){if(data!==undefined)throw this.persistFailure;await this.recovering;}
     const route=path.split('?')[0].split('/');
     if(route[0]==='ops')throw new BrowserStorageError('浏览器版没有服务器运维接口',403);
@@ -101,7 +115,7 @@ class BrowserRuntime{
       if(this.service.engine.active.size){
         const active=[...this.service.engine.active.values()];
         const timer=setInterval(()=>void this.flush().catch(error=>this.failed(error)),2000);
-        void Promise.all(active.map(job=>job.promise)).then(()=>this.flush()).catch(error=>this.failed(error)).finally(async()=>{clearInterval(timer);await this.pending.catch(()=>{});await this.store.release(lease).catch(()=>{});this.lease=undefined;this.writing=false;});
+        void Promise.all(active.map(job=>job.promise)).then(()=>this.flush()).catch(error=>this.failed(error)).finally(async()=>{clearInterval(timer);await this.releaseLease(lease).catch(()=>{});});
         background=true;
       }else await this.flush();
       return response;
@@ -109,7 +123,7 @@ class BrowserRuntime{
       if(this.lease){for(const job of this.service.engine.active.values())job.controller.abort(error);await Promise.all([...this.service.engine.active.values()].map(job=>job.promise));if(!(error instanceof BrowserStorageError&&error.status===409))this.failed(error);}
       throw error;
     }finally{
-      if(!background){if(this.lease)await this.store.release(this.lease).catch(()=>{});this.lease=undefined;this.writing=false;}
+      if(!background){if(this.lease)await this.releaseLease(this.lease).catch(()=>{});else this.writing=false;}
     }
   }
 }

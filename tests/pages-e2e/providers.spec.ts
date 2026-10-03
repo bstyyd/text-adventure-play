@@ -57,6 +57,22 @@ for(const fixture of fixtures)test('native browser provider connection: '+fixtur
 
 for(const width of [390,1440])test('activate API for gameplay after configuration at '+width+'px',async({page})=>{
   await page.setViewportSize({width,height:844});
+  if(width===390)await page.addInitScript(()=>{
+    // Reproduce a slow IndexedDB completion callback after the lease row has
+    // already been cleared. A draft poll must wait rather than renew that lease.
+    const releases=new WeakSet<IDBTransaction>(),put=IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put=function(value,key){
+      if(this.transaction.db.name==='interactive-fiction-pages-v1'&&key==='primary'&&value.version!==undefined&&!value.lease)releases.add(this.transaction);
+      return put.call(this,value,key);
+    };
+    const complete=Object.getOwnPropertyDescriptor(IDBTransaction.prototype,'oncomplete')!;
+    Object.defineProperty(IDBTransaction.prototype,'oncomplete',{...complete,set(listener:((this:IDBTransaction,event:Event)=>unknown)|null){
+      complete.set!.call(this,listener?function(this:IDBTransaction,event:Event){
+        if(releases.has(this))setTimeout(()=>listener.call(this,event),750);
+        else listener.call(this,event);
+      }:null);
+    }});
+  });
   const payloads:{model:string;stream:boolean;messages:{content:string}[]}[]=[],model='Qwen/Qwen3-8B';
   const prose='门外的书吏轻叩门框。\n\n“旧册已从库中取出，是否现在呈入？”他抱着卷册，在门边等候。';
   let rejectGeneration=false;
@@ -66,6 +82,7 @@ for(const width of [390,1440])test('activate API for gameplay after configuratio
     if(rejectGeneration){await route.fulfill({status:401,contentType:'application/json',body:'{}'});return;}
     const extraction=payload.messages.some((m:{content:string})=>m.content.includes('EXTRACTOR v1'));
     const connection=payload.messages.at(-1).content.includes('不含剧情的连接测试');
+    if(!connection)await new Promise(resolve=>setTimeout(resolve,75));
     const text=connection?'连接正常。':extraction?JSON.stringify({sceneProposal:null,facts:[],knowledgeProposals:[],relationshipEvidence:[],eventProposals:[],pendingThreads:[],suggestedActions:['询问卷册来自何处。','请来人说明经手过程。','先看一看封存记录。'],validationWarnings:[]}):prose;
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({choices:[{finish_reason:'stop',message:{content:text}}]})});
   });
