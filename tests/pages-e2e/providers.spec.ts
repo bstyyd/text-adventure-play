@@ -48,11 +48,67 @@ for(const fixture of fixtures)test('native browser provider connection: '+fixtur
   }
   await settings.getByRole('button',{name:'测试连接',exact:true}).click();
   await page.getByRole('dialog',{name:'确认模型请求',exact:true}).getByRole('button',{name:'确认发送',exact:true}).click();
-  const preview=page.getByRole('dialog',{name:'记忆与来源预览',exact:true});
+  const preview=page.getByRole('dialog',{name:'连接测试结果',exact:true});
   await expect(preview).toContainText('连接正常。');
   await expect(preview).toContainText('真实 API 返回');
   expect(requests.filter(r=>r.method==='POST')).toHaveLength(1);
   expect(requests.filter(r=>r.method==='GET')).toHaveLength(fixture.list?1:0);
+});
+
+for(const width of [390,1440])test('activate API for gameplay after configuration at '+width+'px',async({page})=>{
+  await page.setViewportSize({width,height:844});
+  const payloads:{model:string;stream:boolean;messages:{content:string}[]}[]=[],model='Qwen/Qwen3-8B';
+  const prose='门外的书吏轻叩门框。\n\n“旧册已从库中取出，是否现在呈入？”他抱着卷册，在门边等候。';
+  let rejectGeneration=false;
+  await page.route('https://api.siliconflow.cn/**',async route=>{
+    expect(route.request().headers().authorization).toBe('Bearer gameplay-key-fixture');
+    const payload=route.request().postDataJSON();payloads.push(payload);expect(payload.model).toBe(model);
+    if(rejectGeneration){await route.fulfill({status:401,contentType:'application/json',body:'{}'});return;}
+    const extraction=payload.messages.some((m:{content:string})=>m.content.includes('EXTRACTOR v1'));
+    const connection=payload.messages.at(-1).content.includes('不含剧情的连接测试');
+    const text=connection?'连接正常。':extraction?JSON.stringify({sceneProposal:null,facts:[],knowledgeProposals:[],relationshipEvidence:[],eventProposals:[],pendingThreads:[],suggestedActions:['询问卷册来自何处。','请来人说明经手过程。','先看一看封存记录。'],validationWarnings:[]}):prose;
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({choices:[{finish_reason:'stop',message:{content:text}}]})});
+  });
+  await page.goto('./');await page.getByRole('button',{name:'翻开新篇',exact:true}).click();
+  await page.getByLabel('卷册名',{exact:true}).fill('游戏模型切换 '+width);
+  await page.getByRole('button',{name:'开始新故事',exact:true}).click();
+  await page.getByLabel('自由输入',{exact:true}).fill('先等片刻');await page.getByRole('button',{name:'发送',exact:true}).click();
+  await expect(page.locator('.reader .story-turn')).toHaveCount(2,{timeout:30000});expect(payloads).toHaveLength(0);
+  await expect(page.locator('.mock-note')).toContainText('不会调用 API');
+  await page.getByRole('button',{name:'选择游戏模型',exact:true}).click();
+  await page.getByRole('button',{name:/硅基流动.*请手动选择/}).click();
+  const settings=page.getByRole('dialog',{name:'编辑模型配置',exact:true});
+  await settings.getByLabel('模型 ID',{exact:true}).fill(model);
+  await settings.getByLabel('API Key',{exact:true}).fill('gameplay-key-fixture');
+  await settings.getByRole('button',{name:'保存配置与密钥',exact:true}).click();
+  await expect(settings.getByLabel('API Key',{exact:true})).toHaveValue('');
+  // Saving or testing a key alone must not silently change the active game model.
+  await expect(page.getByLabel('正文配置')).toHaveValue('mock');
+  if(width===1440){
+    await settings.getByRole('button',{name:'测试连接',exact:true}).click();
+    await page.getByRole('dialog',{name:'确认模型请求',exact:true}).getByRole('button',{name:'确认发送',exact:true}).click();
+    const result=page.getByRole('dialog',{name:'连接测试结果',exact:true});
+    await expect(result).toContainText('游戏当前使用 离线演练');expect(payloads).toHaveLength(1);
+    await expect(page.getByLabel('正文配置')).toHaveValue('mock');
+    await result.getByRole('button',{name:'用于游戏续写',exact:true}).click();
+  }else await settings.getByRole('button',{name:'用于游戏续写',exact:true}).click();
+  await expect(settings).not.toBeVisible();await expect(page.locator('.composer-foot')).toContainText('硅基流动 / '+model);
+  await page.reload();await expect(page.locator('.composer-foot')).toContainText('硅基流动 / '+model);
+  await page.getByRole('button',{name:'设置',exact:true}).click();
+  await expect(page.getByLabel('正文配置')).toHaveValue('siliconflow');
+  await expect(page.getByLabel('记忆整理配置')).toHaveValue('same');
+  await page.getByRole('button',{name:'故事',exact:true}).click();
+  await page.getByLabel('自由输入',{exact:true}).fill('把册子拿来');await page.getByRole('button',{name:'发送',exact:true}).click();
+  await expect(page.locator('.reader .story-turn')).toHaveCount(3,{timeout:30000});
+  await expect(page.locator('.reader .story-turn').nth(2)).toContainText(prose.split('\n')[0]);
+  await expect(page.locator('.reader .story-turn').nth(2)).toContainText('siliconflow / '+model);
+  await expect(page.locator('.reader .story-turn').nth(1)).toContainText('mock / mock-novel-v1');
+  expect(payloads).toHaveLength(width===1440?3:2);expect(payloads.every(p=>p.stream===false)).toBe(true);
+  if(width===1440){
+    rejectGeneration=true;await page.getByLabel('自由输入',{exact:true}).fill('再核对一次');await page.getByRole('button',{name:'发送',exact:true}).click();
+    await expect(page.locator('.reader .draft-card')).toContainText('密钥无效或已失效');
+    await expect(page.locator('.reader .story-turn')).toHaveCount(3);expect(payloads).toHaveLength(4);
+  }
 });
 
 test('remembered credentials stay out of story exports and can be cleared independently',async({page})=>{
