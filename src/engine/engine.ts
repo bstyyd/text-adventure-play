@@ -207,7 +207,7 @@ export class TurnEngine{
         authoritySources:history.slice(-12).filter(t=>/授权|任命|罢免|兼任|代理|差遣|授予|免去/.test(t.playerText)).map(t=>({sourceTurnId:t.id,playerText:t.playerText}))};
       const extractionRequest:TextRequest={
         profile:d.extractProfile,...extraction,signal,onAttempt,format,schema,
-        system:'EXTRACTOR v1：只整理证据，不新增剧情。输出单个 JSON 对象，严格符合给定 JSON Schema。每项证据 blockId/quote 必须逐字存在。计划不是完成、说法不是真相、送信不等于收到。knownBy仅限确实听见或获知者。玩家心理私密；NPC秘密不共享。无关系证据就空数组，不从日常对白猜加分。时间通常0–2分钟，跨日须授权。sceneProposal没有变化可为null。pendingThreads只引用facts.content或既有事项。suggestedActions给3条紧接正文末段、可自由拒绝或改写的开放行动，不给收益或秘密。'+ownership+'\nSchema:'+JSON.stringify(schema),
+        system:'EXTRACTOR v1：只整理证据，不新增剧情。输出单个 JSON 对象，严格符合给定 JSON Schema。每项证据 blockId/quote 必须逐字存在。计划不是完成、说法不是真相、送信不等于收到。sceneProposal.present和facts.knownBy只填写NPC编号，不包含主角player；主角知情使用revealed表达。player作为evidence.blockId代表玩家输入，作为facts.subject可代表主角，不是NPC编号。动态人物提案的knownBy和actorId沿用其Schema的player规则。knownBy仅限确实听见或获知者。玩家心理私密；NPC秘密不共享。无关系证据就空数组，不从日常对白猜加分。时间通常0–2分钟，跨日须授权。sceneProposal没有变化可为null。pendingThreads只引用facts.content或既有事项。suggestedActions给3条紧接正文末段、可自由拒绝或改写的开放行动，不给收益或秘密。'+ownership+'\nSchema:'+JSON.stringify(schema),
         messages:[{role:'user',content:JSON.stringify(packet)}],
       };
       extractionRequest.system+='\n动态人物 v1：当前剧本所列人物只是种子，具体说话、执行任务、反复出现或明确被关注的个体应登记；泛指群体不要建档。新建用 new:localRef，由服务端分配稳定ID；本轮在场、事实subject、knownBy可引用new:localRef。已有人物改名、换官职或揭露身份仍用原ID，不按同名同姓同官职合并；不确定填unresolvedMentions候选。新增人物默认禁用恋爱，无须编造年龄身世。职务提议/下令/生效/到任/离任分别生成proposedOfficeChanges；同一任职记录各阶段复用assignmentRef。玩家任免处罚必须引用玩家明确原文或祖先节点授权，NPC说法不能当命令。生效须有ordered记录，荣誉不授职权，异地任命不改变位置。自称/传闻/秘密与确认信息分开，knownBy仅实际知情者；远方消息用proposedKnowledgeChanges记录已送达证据，informationEventRef指对应提案ref或已知事件ID。客观人际关系与单向态度分开。所有变化均须真实引文，缺少证据保持未知，不新增正文没有发生的事实。';

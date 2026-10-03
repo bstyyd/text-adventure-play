@@ -32,6 +32,7 @@ test('mobile local review validates then commits and persists the actual draft w
   await page.setViewportSize({width:390,height:844});const fixture=await failedDraft(page,'本地审阅手机验收');await page.reload();
   await expect(page.locator('.draft-card')).toContainText('玄天华');
   let modelActions=0;page.on('request',r=>{if(r.method()==='POST'&&/\/(turns|retry|suggestions)$/.test(r.url()))modelActions++;});
+  await page.getByText('更多处理',{exact:true}).click();
   await page.getByText('手动整理记忆（高级补救）',{exact:true}).click();
   await page.getByRole('button',{name:'本地审阅并保存',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'本地审阅并保存'});
@@ -80,7 +81,9 @@ test('wording hints do not block manual editing and the current extractor is use
   const changed={...DEFAULT_PROFILES[0],id:'review-replacement',label:'测试整理配置',model:'mock-replacement',timeoutMs:120000};
   await fixture.post('profiles',{profile:changed,key:''});await fixture.post('settings',{narrator:'mock',extractor:changed.id,style:'克制，留白，以对白与动作推进。'});
   await page.reload();
+  await page.getByText('更多处理',{exact:true}).click();
   await expect(page.locator('.recovery-note')).toContainText('mock-replacement');
+  await page.getByText('调整重试模型与等待时间',{exact:true}).click();
   await page.getByLabel('此次记忆整理模型').selectOption(changed.id);await page.getByLabel('此次整理等待 / 秒').fill('240');
   await page.screenshot({path:'artifacts/draft-retry-model.png',fullPage:true});
   let retryRequests=0;page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/retry'))retryRequests++;});
@@ -110,6 +113,7 @@ test('one repair click retains the original and automatically saves a valid revi
   const fixture=await failedDraft(page,'正文一键修正验收','让沈彻进来');
   let repairs=0;page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/repair'))repairs++;});
   await expect(page.getByRole('button',{name:'重试整理并自动保存',exact:true})).toBeEnabled();
+  await page.getByText('更多处理',{exact:true}).click();
   await expect(page.getByRole('region',{name:'正文参考提示'})).toContainText('她脑子里先跳出来一个数字。');
   await page.getByText('可选：让模型修正文',{exact:true}).click();
   await page.getByRole('button',{name:'自动修正并保存',exact:true}).scrollIntoViewIfNeeded();
@@ -131,6 +135,7 @@ test('mobile local save keeps player-selected prose and resolves legacy summary 
   const fixture=await failedDraft(page,'玩家决定正文与本地保存','看看来的人是谁，让对方进来',true);
   let modelCalls=0,localSaves=0;
   page.on('request',r=>{if(r.method()==='POST'){if(/\/(retry|repair|turns|revise|suggestions)$/.test(r.url()))modelCalls++;if(r.url().endsWith('/save'))localSaves++;}});
+  await page.getByText('更多处理',{exact:true}).click();
   await expect(page.getByRole('region',{name:'正文参考提示'})).toContainText('不阻止保存');
   const save=page.getByRole('button',{name:'保存这段剧情',exact:true});await expect(save).toBeEnabled();
   await save.scrollIntoViewIfNeeded();await page.screenshot({path:'artifacts/player-decides-local-save-mobile.png',fullPage:true});

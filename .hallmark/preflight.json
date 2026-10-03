@@ -1,0 +1,41 @@
+{
+  "scope": "component",
+  "components": [
+    "DraftRecovery",
+    "DraftProgress",
+    "NovelApp chat"
+  ],
+  "genre": "editorial",
+  "theme": "existing paper",
+  "fonts": {
+    "body": "Microsoft YaHei, PingFang SC, sans-serif",
+    "story": "Source Han Serif SC, Noto Serif CJK SC, Songti SC, SimSun, serif",
+    "source": "app/globals.css:2-5,18"
+  },
+  "palette": {
+    "source": "app/globals.css:30-31,263",
+    "tokens": [
+      "--bg",
+      "--panel",
+      "--surface",
+      "--border",
+      "--ink",
+      "--muted",
+      "--accent",
+      "--hover"
+    ]
+  },
+  "motion": "CSS transitions; no motion library",
+  "spacing": "Existing CSS values; no spacing token scale",
+  "framework": "Next.js 16, React 19, TypeScript",
+  "preserve": [
+    "routes",
+    "component ownership",
+    "font stacks",
+    "theme tokens",
+    "save format",
+    "recovery actions"
+  ],
+  "change": "Progressive disclosure for generation, recovery and saved-turn metadata; skip page macrostructure",
+  "preview": "src/components/DraftRecovery.preview.html (not a production route)"
+}
