@@ -12,7 +12,7 @@
 
 浏览器直接访问供应商官方 HTTPS API。硅基流动与 DeepSeek 无 Key 的跨域 OPTIONS 检查通过，Google 本机检查超时；预检不等于真实模型测试。Google 能否连接还取决于设备网络。
 
-Key 仅驻留当前页面内存，保存后清空输入框，刷新／关页后重填。不写 IndexedDB、localStorage、缓存、导出、日志或构建产物。**Pages 不需要配置模型环境变量或 GitHub Secrets，不能发布站长共享 Key。** 根目录空的 `.env.example` 用于保留的本机 Node 版本。
+Key 默认可在此设备记住，存于独立 IndexedDB `interactive-fiction-provider-keys-v1` 的 `keys` 表，按模型配置与供应商匹配恢复。保存后清空输入框，刷新／关页后自动使用。取消“在此设备记住 API Key”并保存会删除持久密钥，仅本次页面可用；“清除这项密钥”同时清除本页与本机保存的这项密钥。密钥库使用浏览器本地存储，并非带密码保护的保险箱；共用设备可取消记住。它不进入主存档数据库、localStorage、缓存、导出、日志或构建产物，不自动同步到其他设备。清除网站数据会删除密钥。**Pages 不需要配置模型环境变量或 GitHub Secrets，不能发布站长共享 Key。** 根目录空的 `.env.example` 用于保留的本机 Node 版本。
 
 ## 存档、备份与恢复
 

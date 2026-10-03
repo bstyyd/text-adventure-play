@@ -50,7 +50,7 @@ export async function handle(request:Request,route:string[],scope?:RequestScope)
     if(security.config.isolated&&request.method==='POST'&&/^(turns|suggestions|scenarios\/assist|providers\/|drafts\/.*\/(?:retry|repair))/.test(name))security.limit('player-model:'+playerId,3,60000);
   }catch(error){return response({error:(error as Error).message},error instanceof AccessError?error.status:403);}
   const s=scope?.service||service(playerId),deployment=scope?.deployment||deploymentStatus(playerId);
-  const bootstrap=()=>({scenarios:s.repo.scenarios.list(),saves:s.repo.listSaves(),npcs:[],dataDir:scope?.dataDir||(deployment?'服务器持久磁盘 · 此浏览器身份的独立书库':s.repo.dir),profiles:s.repo.profiles().filter(p=>!deployment||p.id==='site-model').map(p=>({...p,hasKey:s.vault.has(p),capabilities:s.getCaps(p),endpoint:ENDPOINTS[p.provider]})),selected:{narrator:s.repo.setting('narrator','mock'),extractor:s.repo.setting('extractor','same')},style:s.repo.setting('style','克制，留白，以对白与动作推进。'),lastError:s.repo.setting('provider-error',''),backupError:s.repo.setting('backup-error',''),accessMode:s.security.config.mode,deployment});
+  const bootstrap=()=>({scenarios:s.repo.scenarios.list(),saves:s.repo.listSaves(),npcs:[],dataDir:scope?.dataDir||(deployment?'服务器持久磁盘 · 此浏览器身份的独立书库':s.repo.dir),profiles:s.repo.profiles().filter(p=>!deployment||p.id==='site-model').map(p=>({...p,hasKey:s.vault.has(p),keyRemembered:s.vault.remembered(p),rememberKeyPreference:s.repo.setting('remember-key:'+p.id,true),capabilities:s.getCaps(p),endpoint:ENDPOINTS[p.provider]})),selected:{narrator:s.repo.setting('narrator','mock'),extractor:s.repo.setting('extractor','same')},style:s.repo.setting('style','克制，留白，以对白与动作推进。'),keyStorageWarning:s.vault.storageWarning(),lastError:s.repo.setting('provider-error',''),backupError:s.repo.setting('backup-error',''),accessMode:s.security.config.mode,deployment});
   try{
     if(!scope&&draining()&&request.method==='POST'&&/^(turns|suggestions|scenarios\/assist|providers\/|drafts\/.*\/(?:retry|repair))/.test(name))throw new AccessError('站点正在更新，现有生成会继续完成；请稍后手动发送。',503);
     if(request.method==='GET'){
@@ -85,7 +85,7 @@ export async function handle(request:Request,route:string[],scope?:RequestScope)
     }
     if(request.method!=='POST')return response({error:'不支持此方法'},405);
     const raw=await body(request);
-    if(deployment&&name==='profiles')throw new AccessError('本站模型和密钥由站长通过服务器环境配置。',403);
+    if(deployment&&(name==='profiles'||name==='profiles/forget-key'))throw new AccessError('本站模型和密钥由站长通过服务器环境配置。',403);
     if(deployment&&name==='backup')throw new AccessError('整库备份由站长管理；请使用完整 JSON 导出备份自己的存档。',403);
     if(deployment&&typeof raw==='object'&&raw!==null&&'extractProfileId' in raw&&raw.extractProfileId!==undefined&&raw.extractProfileId!=='site-model')throw new AccessError('本站只开放站长配置的模型。',403);
     if(name==='scenarios/manual')return response(s.scenarios.manual(raw));
@@ -152,10 +152,17 @@ export async function handle(request:Request,route:string[],scope?:RequestScope)
     }
     if(name==='backup')return response({path:await s.repo.backup()});
     if(name==='profiles'){
-      const data=z.object({profile:ProfileSchema,key:z.string().max(1000).optional(),select:z.boolean().default(false)}).strict().parse(raw);
-      s.repo.putProfile(data.profile);if(data.key)s.vault.set(data.profile,data.key);
+      const data=z.object({profile:ProfileSchema,key:z.string().max(1000).optional(),rememberKey:z.boolean().optional(),select:z.boolean().default(false)}).strict().parse(raw);
+      await s.vault.save(data.profile,data.key||'',data.rememberKey);
+      s.repo.putProfile(data.profile);
+      if(data.rememberKey!==undefined)s.repo.setSetting('remember-key:'+data.profile.id,data.rememberKey);
       if(data.select)s.repo.setSetting('narrator',data.profile.id);
       return response({ok:true});
+    }
+    if(name==='profiles/forget-key'){
+      const data=z.object({profileId:z.string().max(80)}).strict().parse(raw);
+      const profile=s.repo.profiles().find(p=>p.id===data.profileId);if(!profile)throw new Error('模型配置不存在');
+      await s.vault.forget(profile);return response({ok:true});
     }
     if(name==='settings'){
       const data=z.object({narrator:z.string().max(80),extractor:z.string().max(80),style:z.enum(['克制，留白，以对白与动作推进。','对白更短，允许平静闲聊。','细写环境与停顿，保留回应空间。'])}).strict().parse(raw);

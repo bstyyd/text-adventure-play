@@ -20,6 +20,6 @@ export function offlineCopy(repo:Repository,saveId:string,bootstrap:Bootstrap):O
     const dates=archive.payload.turns.map(t=>t.createdAt).sort();
     return {formatVersion:1 as const,serverId,revision:archive.sha256,downloadedAt:new Date().toISOString(),saveId,title:save.title,
       scope:{branches:archive.payload.branches.length,turns:archive.payload.turns.length,from:dates[0],to:dates.at(-1)!},views,books,archive,
-      bootstrap:{...bootstrap,saves:[save],dataDir:'主存档位于提供服务的电脑／服务器；当前查看此浏览器的离线副本。',profiles:bootstrap.profiles.map(p=>({...p,hasKey:false})),lastError:'',backupError:''}};
+      bootstrap:{...bootstrap,saves:[save],dataDir:'主存档位于提供服务的电脑／服务器；当前查看此浏览器的离线副本。',profiles:bootstrap.profiles.map(p=>({...p,hasKey:false,keyRemembered:false})),lastError:'',backupError:''}};
   })();
 }

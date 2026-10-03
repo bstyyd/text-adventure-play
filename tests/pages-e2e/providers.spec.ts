@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import {readFile} from 'node:fs/promises';
 
 const fixtures=[
   {label:'硅基流动',provider:'siliconflow',origin:'https://api.siliconflow.cn',model:'Qwen/Qwen3-8B',list:true},
@@ -32,9 +33,14 @@ for(const fixture of fixtures)test('native browser provider connection: '+fixtur
   const settings=page.getByRole('dialog',{name:'编辑模型配置',exact:true});
   await settings.getByLabel('模型 ID',{exact:true}).fill(fixture.model);
   await settings.getByLabel('API Key',{exact:true}).fill(secret);
+  await expect(settings.getByLabel('在此设备记住 API Key',{exact:true})).toBeChecked();
   await settings.getByRole('button',{name:'保存配置与密钥',exact:true}).click();
   await expect(settings.getByLabel('API Key',{exact:true})).toHaveValue('');
   await expect(page.getByText('模型配置已保存。',{exact:true})).toBeVisible();
+  await page.reload();await page.getByRole('button',{name:'设置',exact:true}).click();
+  const savedRow=page.getByRole('button',{name:new RegExp(fixture.label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))});
+  await expect(savedRow).toContainText('已记住密钥');await savedRow.click();
+  await expect(settings.getByLabel('API Key',{exact:true})).toHaveValue('');
   if(fixture.list){
     await settings.getByRole('button',{name:'获取模型列表',exact:true}).click();
     await page.getByRole('dialog',{name:'确认模型请求',exact:true}).getByRole('button',{name:'确认发送',exact:true}).click();
@@ -47,4 +53,34 @@ for(const fixture of fixtures)test('native browser provider connection: '+fixtur
   await expect(preview).toContainText('真实 API 返回');
   expect(requests.filter(r=>r.method==='POST')).toHaveLength(1);
   expect(requests.filter(r=>r.method==='GET')).toHaveLength(fixture.list?1:0);
+});
+
+test('remembered credentials stay out of story exports and can be cleared independently',async({page})=>{
+  await page.goto('./');await page.getByRole('button',{name:'翻开新篇',exact:true}).click();
+  await page.getByLabel('卷册名',{exact:true}).fill('本机密钥与故事分离');
+  await page.getByRole('button',{name:'开始新故事',exact:true}).click();await expect(page.locator('.reader')).toContainText('门外传来脚步声');
+  await page.getByRole('button',{name:'设置',exact:true}).click();
+  await page.getByRole('button',{name:/DeepSeek 官方.*deepseek-flash/}).click();
+  const settings=page.getByRole('dialog',{name:'编辑模型配置',exact:true}),secret='export-exclusion-key-fixture';
+  await settings.getByLabel('API Key',{exact:true}).fill(secret);
+  await settings.getByRole('button',{name:'保存配置与密钥',exact:true}).click();await expect(settings.getByLabel('API Key',{exact:true})).toHaveValue('');
+  await settings.getByRole('button',{name:'关闭',exact:true}).click();
+  await page.getByRole('button',{name:'存档',exact:true}).click();
+  const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'可恢复 JSON',exact:true}).click();
+  expect(await readFile((await(await downloading).path())!,'utf8')).not.toContain(secret);
+  const storyStorage=await page.evaluate(async()=>{
+    const db=await new Promise<IDBDatabase>((resolve,reject)=>{const request=indexedDB.open('interactive-fiction-pages-v1');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
+    const row=await new Promise<{data:Uint8Array}>(resolve=>{const request=db.transaction('snapshots').objectStore('snapshots').get('primary');request.onsuccess=()=>resolve(request.result);});db.close();
+    return new TextDecoder().decode(row.data)+JSON.stringify(localStorage);
+  });expect(storyStorage).not.toContain(secret);
+  await page.getByRole('button',{name:'关闭',exact:true}).click();
+  await page.getByRole('button',{name:/DeepSeek 官方.*已记住密钥/}).click();
+  await settings.getByRole('button',{name:'清除这项密钥',exact:true}).click();await expect(page.getByText('已清除这项配置的本机密钥。',{exact:true})).toBeVisible();
+  await page.reload();await page.getByRole('button',{name:'设置',exact:true}).click();
+  await expect(page.getByRole('button',{name:/DeepSeek 官方.*未配置密钥/})).toBeVisible();
+  await page.getByRole('button',{name:'故事',exact:true}).click();await expect(page.locator('.reader')).toContainText('门外传来脚步声');
+  const entries=await page.evaluate(async()=>{
+    const db=await new Promise<IDBDatabase>((resolve,reject)=>{const request=indexedDB.open('interactive-fiction-provider-keys-v1');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
+    const rows=await new Promise<unknown[]>(resolve=>{const request=db.transaction('keys').objectStore('keys').getAll();request.onsuccess=()=>resolve(request.result);});db.close();return rows;
+  });expect(entries).toEqual([]);
 });

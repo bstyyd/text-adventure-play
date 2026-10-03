@@ -2,6 +2,7 @@ import initSqlJs from 'sql.js';
 import type Database from 'better-sqlite3';
 import {BrowserSqlite} from './sqlite';
 import {BrowserStore,BrowserStorageError} from './store';
+import {BrowserSecretVault} from './secrets';
 import {Repository} from '../storage/repository';
 import {LocalSecurity} from '../security/local';
 import {makeService} from '../server/make-service';
@@ -30,11 +31,11 @@ class BrowserRuntime{
   readonly repo:Repository;
   readonly security=new BrowserSecurity({mode:'lan',origins:[location.origin],passwordHash:'',isolated:true});
   readonly service:ReturnType<typeof makeService>;
-  constructor(private db:BrowserSqlite,private store:BrowserStore,version:number,leaseUntil:number){
+  constructor(private db:BrowserSqlite,private store:BrowserStore,version:number,leaseUntil:number,vault:BrowserSecretVault){
     this.version=version;
     this.repo=new Repository('/browser',{database:db as unknown as Database.Database,recoverDrafts:false,backup:async automatic=>{await this.flush();await this.store.backup(this.db.serialize(),automatic);return '此浏览器 IndexedDB 内的'+(automatic?'自动':'手动')+'完整备份';}});
     this.expired(leaseUntil);
-    this.service=makeService({repo:this.repo,security:this.security,beforeAttempt:async()=>{await this.flush();if(this.persistFailure)throw this.persistFailure;}});
+    this.service=makeService({repo:this.repo,security:this.security,vault,beforeAttempt:async()=>{await this.flush();if(this.persistFailure)throw this.persistFailure;}});
     this.initialData=this.db.serialize();
     const snapshot=()=>{if(this.lease)void this.flush().catch(error=>this.failed(error));};
     document.addEventListener('visibilitychange',snapshot);window.addEventListener('pagehide',snapshot);
@@ -116,7 +117,9 @@ async function open(){
   const store=new BrowserStore(),row=await store.read(),SQL=await initSqlJs({locateFile:()=>sitePath('/sqlite/sql-wasm.wasm')});
   const db=new BrowserSqlite(SQL,row.data);
   if(row.data&&Number(db.pragma('user_version',{simple:true}))<3)await store.backup(row.data,true);
-  return new BrowserRuntime(db,store,row.version,row.leaseUntil);
+  const vault=new BrowserSecretVault(),runtime=new BrowserRuntime(db,store,row.version,row.leaseUntil,vault);
+  await vault.restore(runtime.repo.profiles());
+  return runtime;
 }
 export async function browserRequest(path:string,data?:unknown,signal?:AbortSignal):Promise<Response>{
   try{return await (opening??=open()).then(runtime=>runtime.call(path,data,signal));}
