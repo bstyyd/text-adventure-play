@@ -63,7 +63,7 @@ export class ChatCompletionsProvider extends BaseProvider{
       const signal=AbortSignal.any([total,headers.signal]);
       let response:Response;
       try{
-        response=await this.fetcher(ENDPOINTS[this.id]+path,{method,redirect:'error',headers:{Authorization:'Bearer '+r.key,'Content-Type':'application/json'},body:method==='POST'?JSON.stringify(this.payload(r,stream)):undefined,signal});
+        response=await this.fetcher.call(globalThis,ENDPOINTS[this.id]+path,{method,redirect:'error',headers:{Authorization:'Bearer '+r.key,'Content-Type':'application/json'},body:method==='POST'?JSON.stringify(this.payload(r,stream)):undefined,signal});
       }catch(error){
         throw requestError(error,signal,r.signal);
       }finally{clearTimeout(timer);}

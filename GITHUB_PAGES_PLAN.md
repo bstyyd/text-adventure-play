@@ -4,7 +4,7 @@
 
 1. 保留统一 Next.js / TypeScript、原有小说页面、三个供应商适配器、剧本和规则引擎。新增独立静态构建入口，GitHub Pages 发布完整浏览器版；本机 Node 入口继续存在。
 2. 浏览器以 SQLite WASM 复用 Repository 的 SQL 和原子剧情事务，完整数据库快照写入 IndexedDB。每次写入检查版本与写入租约，重试沿用请求 ID；不把存储失败显示成已保存。跨设备使用完整 JSON 导入导出，没有自动服务器同步。
-3. 玩家密钥只驻留页面内存；刷新后重填，不写 IndexedDB、localStorage、Service Worker、导出、仓库或构建环境。浏览器直接调用固定的供应商 HTTPS 地址，不发布站长共享密钥。真实模型测试需玩家填入密钥后进行。
+3. 2026-10-03 按用户新要求，加入“在此设备记住 API Key”，默认启用；密钥保存到独立的浏览器 IndexedDB 密钥库，可取消记住或单独清除。密钥不进故事数据库、localStorage、Service Worker、导出、仓库或构建环境，不自动跨设备同步。浏览器直接调用固定的供应商 HTTPS 地址，不发布站长共享密钥。真实模型测试需玩家填入密钥后进行。
 4. 修复 `/text-adventure-play/` 子路径、图片、Manifest、Service Worker 和刷新；保留手机阅读、人物、历史、存档分支及剧本管理。
 5. 使用独立仓库 `bstyyd/text-adventure-play`，白名单上传代码；免费 GitHub Pages 需要公开代码仓库。Actions 执行检查、静态构建和发布，推送 main 自动更新。
 6. 验证 lint、typecheck、单元 / 集成、生产构建与浏览器闭环，再发布并检查真实 HTTPS 地址。真实 API 对话、真机与中国移动网络分别记录，未测试不声称通过。

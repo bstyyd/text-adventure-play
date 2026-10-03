@@ -9,6 +9,13 @@ export class SecretVault implements SecretProvider{
   get(profile:Profile){return this.keys.get(profile.id)||(profile.provider==='google-gemma'?process.env.GOOGLE_AI_API_KEY||process.env.GOOGLE_API_KEY:process.env[envKeys[profile.provider]])||'';}
   has(profile:Profile){return !!this.get(profile);}
   clear(id:string){this.keys.delete(id);}
+  remembered(profile:Profile){void profile;return false;}
+  storageWarning(){return '';}
+  async save(profile:Profile,key:string,remember=false){
+    if(remember)throw new Error('只有浏览器版支持在此设备记住密钥。');
+    if(key)this.set(profile,key);
+  }
+  async forget(profile:Profile){this.clear(profile.id);}
   async resolve(profile:Profile){return this.get(profile);}
   async configured(profile:Profile){return this.has(profile);}
 }

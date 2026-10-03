@@ -6,6 +6,13 @@ import { DEFAULT_PROFILES } from '../../src/llm/config';
 import { textRequest } from '../helpers';
 const good=(content='小说正文',finish='stop')=>({id:'fixture-id',choices:[{message:{content,reasoning_content:'DO_NOT_SHOW'},finish_reason:finish}],usage:{prompt_tokens:15,completion_tokens:9}});
 describe.each([{name:'DeepSeek',Provider:DeepSeekProvider,profile:DEFAULT_PROFILES[2],url:'https://api.deepseek.com/chat/completions'},{name:'硅基流动',Provider:SiliconFlowProvider,profile:{...DEFAULT_PROFILES[1],model:'Pro/vendor/full-model'},url:'https://api.siliconflow.cn/v1/chat/completions'}])('$name mock HTTP contract F01 F02 F06 F10–F12',({Provider,profile,url})=>{
+  it('preserves the global receiver required by native browser fetch',async()=>{
+    const fetcher=vi.fn<typeof fetch>(function(this:unknown){
+      if(this!==globalThis)throw new TypeError('Illegal invocation');
+      return Promise.resolve(Response.json(good()));
+    });
+    await expect(new Provider(fetcher).testConnection(textRequest(profile))).resolves.toMatchObject({text:'小说正文'});
+  });
   it('endpoint, bearer, model and reasoning exclusion',async()=>{
     const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json(good()));
     const p=new Provider(fetcher),r=await p.generateText(textRequest(profile));
@@ -95,6 +102,13 @@ describe('SSE fixtures F08 F09 F10',()=>{
   });
 });
 describe('Google Gemma native SDK fixtures F03 F04 F14',()=>{
+  it('model listing preserves the native browser fetch receiver',async()=>{
+    const fetcher=vi.fn<typeof fetch>(function(this:unknown){
+      if(this!==globalThis)throw new TypeError('Illegal invocation');
+      return Promise.resolve(Response.json({models:[]}));
+    });
+    await expect(new GoogleGemmaProvider(undefined,fetcher).listModels(textRequest(DEFAULT_PROFILES[3]))).resolves.toMatchObject({status:'supported'});
+  });
   it('official SDK issues native endpoint and API-key header using mocked HTTP',async()=>{
     const f=vi.fn<typeof fetch>().mockResolvedValue(Response.json({candidates:[{finishReason:'STOP',content:{role:'model',parts:[{text:'原生返回'}]}}]}));
     vi.stubGlobal('fetch',f);

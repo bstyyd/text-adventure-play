@@ -16,9 +16,9 @@ for(const width of [360,390,430,768,1440])test('Pages browser-only core and refr
   await page.getByRole('button',{name:'关闭',exact:true}).click();await page.getByRole('button',{name:'往事',exact:true}).click();await expect(page.getByRole('heading',{name:'往事'})).toBeVisible();
   expect(errors).toEqual([]);
 });
-test('player key never reaches storage and is forgotten on reload',async({page})=>{
+test('temporary player key never reaches storage and is forgotten on reload',async({page})=>{
   await page.goto('./');await page.getByRole('button',{name:'设置',exact:true}).click();await page.getByRole('button',{name:/DeepSeek 官方.*deepseek-flash/}).click();
-  const secret='browser-only-fixture-secret';await page.getByLabel('API Key',{exact:true}).fill(secret);await page.getByRole('button',{name:'保存配置与密钥',exact:true}).click();await expect(page.getByLabel('API Key',{exact:true})).toHaveValue('');
+  const secret='browser-only-fixture-secret';await page.getByLabel('API Key',{exact:true}).fill(secret);await page.getByLabel('在此设备记住 API Key',{exact:true}).uncheck();await page.getByRole('button',{name:'保存配置与密钥',exact:true}).click();await expect(page.getByLabel('API Key',{exact:true})).toHaveValue('');
   const stored=await page.evaluate(async()=>{
     const db=await new Promise<IDBDatabase>((resolve,reject)=>{const r=indexedDB.open('interactive-fiction-pages-v1');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
     const row=await new Promise<{data:Uint8Array}>(resolve=>{const r=db.transaction('snapshots').objectStore('snapshots').get('primary');r.onsuccess=()=>resolve(r.result);});db.close();

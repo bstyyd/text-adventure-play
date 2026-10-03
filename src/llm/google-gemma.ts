@@ -38,7 +38,7 @@ export class GoogleGemmaProvider extends BaseProvider{
     const models:ModelList['models']=[],seen=new Set<string>();let token='';
     do{
       r.signal.throwIfAborted();
-      const response=await this.fetcher(ENDPOINTS[this.id]+'/models?pageSize=100'+(token?'&pageToken='+encodeURIComponent(token):''),{headers:{'x-goog-api-key':r.key},redirect:'error',signal:AbortSignal.any([r.signal,AbortSignal.timeout(r.profile.connectTimeoutMs)])});
+      const response=await this.fetcher.call(globalThis,ENDPOINTS[this.id]+'/models?pageSize=100'+(token?'&pageToken='+encodeURIComponent(token):''),{headers:{'x-goog-api-key':r.key},redirect:'error',signal:AbortSignal.any([r.signal,AbortSignal.timeout(r.profile.connectTimeoutMs)])});
       if(!response.ok)throw providerError(response.status);
       const json=await response.json() as {models?:{name:string;supportedGenerationMethods?:string[]}[];nextPageToken?:string};
       for(const model of json.models||[])if(model.supportedGenerationMethods?.includes('generateContent'))models.push({id:model.name.replace(/^models\//,''),methods:model.supportedGenerationMethods});

@@ -1,7 +1,7 @@
 import type {ScenarioSummary} from '../scenario/schema';
 import type { Capabilities, NpcId, Profile, Save, Turn, TurnInput, View } from './types';
 import type { CharacterBook } from '../characters/schema';
-export type Bootstrap={scenarios:ScenarioSummary[];saves:Save[];npcs:{id:NpcId;name:string;role:string;age:number|null;description:string}[];dataDir:string;profiles:(Profile&{hasKey:boolean;endpoint:string;capabilities:Capabilities})[];selected:{narrator:string;extractor:string};style:string;lastError:string;backupError:string;accessMode:'local'|'lan'|'public';deployment?:{playerMode:'isolated';providerMode:'site';loginRequired:boolean;usedRequests:number;playerDailyRequests:number;maxOutputTokens:number}};
+export type Bootstrap={scenarios:ScenarioSummary[];saves:Save[];npcs:{id:NpcId;name:string;role:string;age:number|null;description:string}[];dataDir:string;profiles:(Profile&{hasKey:boolean;keyRemembered?:boolean;rememberKeyPreference?:boolean;endpoint:string;capabilities:Capabilities})[];selected:{narrator:string;extractor:string};style:string;lastError:string;backupError:string;keyStorageWarning?:string;accessMode:'local'|'lan'|'public';deployment?:{playerMode:'isolated';providerMode:'site';loginRequired:boolean;usedRequests:number;playerDailyRequests:number;maxOutputTokens:number}};
 export type OfflineCopy={
   formatVersion:1;serverId:string;revision:string;downloadedAt:string;saveId:string;title:string;
   scope:{branches:number;turns:number;from:string;to:string};
