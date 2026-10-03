@@ -3,6 +3,7 @@ import { TurnEngine } from '../../src/engine/engine';
 import { draftRevision } from '../../src/engine/draft-review';
 import { normalizeExtraction,MEMORY_NOTICES } from '../../src/engine/normalize-extraction';
 import { publicDraft,publicView } from '../../src/characters/public';
+import { characterWorld } from '../../src/characters/world';
 import { MockProvider } from '../../src/llm/mock';
 import { DEFAULT_PROFILES } from '../../src/llm/config';
 import { exportSave,importSave } from '../../src/storage/transfer';
@@ -26,6 +27,49 @@ function setup(){
   return {repo,save,root,draft,engine,provider,x};
 }
 describe('玩家决定正文与整理容错',()=>{
+  it('automatically saves when the extractor includes player in NPC-only lists',async()=>{
+    const e=setup();e.repo.putDraft({...e.draft,status:'cancelled'});
+    e.x.sceneProposal!.present.push('player');e.x.facts[0].knownBy.push('player');
+    class Narrator extends MockProvider{
+      override async generateText(r:Parameters<MockProvider['generateText']>[0]){
+        const result=await super.generateText(r);
+        return {...result,text:r.system.startsWith('EXTRACTOR')?JSON.stringify(e.x):prose};
+      }
+    }
+    const provider=new Narrator(),spy=vi.spyOn(provider,'generateText');
+    const engine=new TurnEngine(e.repo,{provider:()=>provider,secret:()=>'',profiles:()=>({narrator:DEFAULT_PROFILES[0],extractor:DEFAULT_PROFILES[0]})});
+    const d=await engine.wait(engine.start(inputFor(e.repo,e.save.id,player)).id);
+    expect(d.status).toBe('committed');expect(d.requestCount).toBe(2);expect(spy).toHaveBeenCalledTimes(2);
+    const turn=e.repo.view(e.save.id).turns.at(-1)!;
+    expect(turn.state.present).toEqual(['shen_che']);expect(turn.effects.facts[0].knownBy).toEqual(['shen_che']);
+    expect(turn.effects.diagnostics).toContain(MEMORY_NOTICES.player);
+    expect(characterWorld(e.repo.view(e.save.id).turns).some(c=>c.id==='player')).toBe(false);
+  });
+  it('repairs an old player-list failure locally without another model call or rewriting prose',async()=>{
+    const e=setup();e.draft.extraction!.sceneProposal!.present.push('player');e.draft.extraction!.facts[0].knownBy.push('player');
+    const fact={...e.draft.extraction!.facts[0],kind:'intent' as const,subject:'player',content:'玩家想先听禀报。',knownBy:[],evidence:{blockId:'player',quote:player}};
+    e.draft.extraction!.facts.push(fact);e.repo.putDraft(e.draft);
+    const raw=structuredClone(e.draft.extraction!);
+    const normalized=normalizeExtraction(e.root.state,player,prose,raw);
+    expect(raw).toEqual(e.draft.extraction);expect(normalized.extraction.facts[1]).toEqual(fact);
+    const saved=await e.engine.commitExtracted(e.draft.id,draftRevision(e.draft));
+    expect(saved.status).toBe('committed');expect(saved.body).toBe(prose);expect(saved.requestCount).toBe(11);expect(e.provider).not.toHaveBeenCalled();
+  });
+  it('does not normalize unknown NPCs, hidden player knowledge or unsupported player NPC changes',async()=>{
+    const e=setup(),before=exportSave(e.repo,e.save.id);
+    for(const field of ['present','knownBy','hidden','knowledge','decision']){
+      const draft=structuredClone(e.draft),x=draft.extraction!;
+      x.sceneProposal!.present.push('player');
+      if(field==='present')x.sceneProposal!.present.push('unknown-npc');
+      if(field==='knownBy')x.facts[0].knownBy.push('unknown-npc');
+      if(field==='hidden'){x.facts[0].revealed=false;x.facts[0].knownBy.push('player');}
+      if(field==='knowledge')x.knowledgeProposals.push({npcId:'player',factIndex:0,path:'witness',evidence:x.facts[0].evidence});
+      if(field==='decision'){x.facts[0].kind='confirmed_event';x.facts[0].subject='player';x.facts[0].knownBy.push('player');}
+      e.repo.putDraft(draft);await expect(e.engine.commitExtracted(draft.id,draftRevision(draft))).rejects.toThrow();
+      expect(exportSave(e.repo,e.save.id)).toEqual(before);expect(e.repo.draft(draft.id)).toEqual(draft);
+    }
+    expect(e.provider).not.toHaveBeenCalled();
+  });
   it('normal generation saves with wording hints and model opinions, without a confirmation or repair request',async()=>{
     const env=setup();env.repo.putDraft({...env.draft,status:'cancelled'});
     class Narrator extends MockProvider{

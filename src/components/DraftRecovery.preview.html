@@ -1,0 +1,17 @@
+<!doctype html>
+<!-- Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · non-production state preview -->
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>聊天处理 · 状态预览</title>
+<link rel="stylesheet" href="../../app/globals.css">
+<style>
+html,body{overflow-y:auto;overflow-x:clip}.app.recovery-demo{position:static;height:auto;overflow:visible;padding:24px;gap:20px}.recovery-demo>section{max-width:700px;width:100%;margin:auto;border-bottom:1px solid var(--border);padding-bottom:12px}.recovery-demo h1{font-size:24px;letter-spacing:0}.recovery-demo h2{font-family:inherit;font-size:14px}.recovery-demo .draft-recovery{margin-top:4px}
+</style></head><body><main class="app recovery-demo">
+<section><h1>聊天处理 · 八种状态</h1><p>设计预览，不连接模型或存档。</p></section>
+<section><h2>默认</h2><div class="draft-recovery" data-state="default"><div class="recovery-primary"><button class="outline">保存这段剧情</button></div><details class="recovery-more"><summary>更多处理</summary><div class="recovery-content"><p>这里显示校验详情与修订工具。</p></div></details></div></section>
+<section><h2>悬停</h2><div class="draft-recovery"><button class="outline is-hover">保存这段剧情</button></div></section>
+<section><h2>键盘焦点</h2><div class="draft-recovery"><button class="outline is-focus">保存这段剧情</button></div></section>
+<section><h2>按下</h2><div class="draft-recovery"><button class="outline is-active">保存这段剧情</button></div></section>
+<section><h2>不可操作</h2><div class="draft-recovery"><button class="outline" disabled>保存这段剧情</button></div></section>
+<section><h2>处理中</h2><div class="draft-recovery" data-state="loading" aria-busy="true"><div class="recovery-primary"><button class="outline" disabled>保存这段剧情</button><span role="status">处理中…</span></div></div></section>
+<section><h2>失败</h2><div class="draft-label">尚未保存 · 正文已保留</div><div class="draft-recovery" data-state="error"><div class="recovery-primary"><button class="outline">重试整理并自动保存</button></div><details class="recovery-more"><summary>更多处理</summary><div class="recovery-content"><p>校验未通过，继续保留草稿。</p></div></details></div></section>
+<section><h2>成功</h2><div class="draft-recovery" data-state="success" role="status">✓ 已保存</div></section>
+</main></body></html>
